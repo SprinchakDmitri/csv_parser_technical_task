@@ -1,2 +1,4 @@
 # Project exclude paths
 /out/
+.idea
+csv_parser_technical_task.iml
