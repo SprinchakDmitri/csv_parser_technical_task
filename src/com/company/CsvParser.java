@@ -50,19 +50,30 @@ public class CsvParser {
         }
         return resultList;
     }
+    List<List<String>> splitAllLines(String path) throws IOException {
+        List<String> unsplitedLines = getCsvLinesFromFile(path);
+        List<List<String>> resultList = new ArrayList<>();
+        for (String line : unsplitedLines) {
+            resultList.add(splitCsvLine(line));
+        }
+        return resultList;
+    }
 
-    List<String> getLine(List<List<String>> splitedLines, int lineNumber) {
+    List<String> getLineByIndex(List<List<String>> splitedLines, int lineNumber) {
         if (splitedLines.size() > lineNumber && lineNumber > 0)
             return splitedLines.get(lineNumber);
         else throw new IllegalArgumentException();
     }
 
-    String getLineAndElement(List<List<String>> splitedLines, int lineNumber, int elementNumber) {
+
+    String getElement(List<List<String>> splitedLines, int lineNumber, int elementNumber) {
         if (splitedLines.size() > lineNumber && lineNumber > 0
                 && elementNumber < columnNames.size() && elementNumber > 0)
-
             return splitedLines.get(lineNumber)
                     .get(elementNumber);
         else throw new IllegalArgumentException();
+    }
+    public List<String> getColumnNames() {
+        return columnNames;
     }
 }
