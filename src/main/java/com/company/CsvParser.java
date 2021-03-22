@@ -7,16 +7,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.company.Main.pathToTheFile;
 
 public class CsvParser {
 
     List<String> columnNames;
+    List<String> badData = new ArrayList<>();
+    int failedRecords = 0;
+    int successRecords = 0;
+    int allRecords = 0;
 
-    public CsvParser() throws IOException {
+    public CsvParser(String pathToTheFile) throws IOException {
         columnNames = getCsvColumnNamesFromFile(pathToTheFile);
     }
 
@@ -38,24 +40,27 @@ public class CsvParser {
         return true;
     }
 
-    List<String> splitCsvLine(String line) {                                    //todo implement split with "," case
+    private List<String> splitCsvLine(String line) {//todo implement split with "," case
+        allRecords++;
         if (validateCsvLine(line, columnNames.size())) {
+            successRecords++;
             return Arrays.asList(line.split(","));
-        } else return null;
+        } else {
+            failedRecords++;
+            badData.add(line);
+            return null;
+        }
     }
 
-    List<List<String>> splitAllLines(List<String> unsplitedLines) {
-        List<List<String>> resultList = new ArrayList<>();
-        for (String line : unsplitedLines) {
-            resultList.add(splitCsvLine(line));
-        }
-        return resultList;
-    }
     List<List<String>> splitAllLines(String path) throws IOException {
         List<String> unsplitedLines = getCsvLinesFromFile(path);
         List<List<String>> resultList = new ArrayList<>();
         for (String line : unsplitedLines) {
-            resultList.add(splitCsvLine(line));
+            if (line != null)
+                resultList.add(splitCsvLine(line));
+        }
+        if (badData.size() != 0) {
+            FilesUtils.createBadDataFile(badData);
         }
         return resultList;
     }
@@ -74,7 +79,15 @@ public class CsvParser {
                     .get(elementNumber);
         else throw new IllegalArgumentException();
     }
+
     public List<String> getColumnNames() {
         return columnNames;
     }
+
+    public String printReport() {
+        return "All records: " + allRecords + "\n" +
+                "Success records: " + successRecords + "\n" +
+                "Failed records: " + failedRecords;
+    }
 }
+

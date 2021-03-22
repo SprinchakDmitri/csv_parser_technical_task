@@ -9,35 +9,33 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class Main {
-    static String pathToTheFile = "/home/sprinchak/Downloads/con.csv";
 
+    public static void main(String[] args) {
 
-    public static void main(String[] args) throws IOException {
-
-        FilesUtils filesUtils = new FilesUtils();
         Scanner scanner = new Scanner(System.in);
-        CsvParser parser = new CsvParser();
         SqlQueryBuilder qb = new SqlQueryBuilder();
+        CsvParser parser;
         Connection connection;
         Statement statement;
         String url;
+        String pathToTheFile;
 
         while (true) {
             try {
-                System.out.println("Please enter the path to the database." +
+                System.out.println("Please enter the absolute path to the database." +
                         "(Like '/home/username/../database.db)'\"");
                 url = "jdbc:sqlite:";
                 url += scanner.nextLine();
 
-                if (!filesUtils.checkIfFileExists(url.substring(12)))
+                if (!FilesUtils.checkIfFileExists(url.substring(12)))
                     throw new NoSuchFileException("url");
-                filesUtils.checkIfFileIsDb(url);
+                FilesUtils.checkIfFileIsDb(url);
                 connection = DriverManager.getConnection(url);
                 statement = connection.createStatement();
                 break;
             } catch (NoSuchFileException | SQLException e) {
                 System.out.println("Such database doesn't exist.Please try once again");
-            }catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 System.out.println("This is not a database. Try once again");
             }
         }
@@ -46,12 +44,13 @@ public class Main {
         while (true) {
             try {
                 System.out.println("Now, please enter the absolute path to the csv file." +
-                        "(Like '/home/username/../file.csv)'");
+                        "(Like '/home/username/../file.csv) '");
                 pathToTheFile = scanner.nextLine();
 
-                if (!filesUtils.checkIfFileExists(pathToTheFile))
+                if (!FilesUtils.checkIfFileExists(pathToTheFile))
                     throw new NoSuchFileException(pathToTheFile);
-                filesUtils.checkIfFileIsCsv(pathToTheFile);
+                FilesUtils.checkIfFileIsCsv(pathToTheFile);
+
                 break;
             } catch (NoSuchFileException e) {
                 System.out.println("Such file doesn't exist.Please try once again");
@@ -65,7 +64,7 @@ public class Main {
             try {
                 System.out.println("Please enter the table name to update.");
                 String tableName = scanner.nextLine();
-
+                parser = new CsvParser(pathToTheFile);
                 String sql = qb.createInsertQuery(
                         tableName,
                         parser.getColumnNames(),
@@ -73,10 +72,13 @@ public class Main {
                 );
                 statement.executeUpdate(sql);
                 break;
-            } catch (Exception e) {
+            } catch (IOException e) {
+                System.out.println("Problems with reading data from file. Please try once again");
+            } catch (SQLException e) {
                 System.out.println("Such table doesn't exist.Please try once again");
             }
         }
         System.out.println("\uD83D\uDC4D  Table is updated");
+        System.out.println(parser.printReport());
     }
 }
