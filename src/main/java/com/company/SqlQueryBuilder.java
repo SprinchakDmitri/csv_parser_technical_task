@@ -6,9 +6,11 @@ import java.util.regex.Pattern;
 
 public class SqlQueryBuilder {
 
+    private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+
     String createInsertQuery(String tableName, List<String> columnNames, List<List<String>> values) {
         StringBuilder query = new StringBuilder(
-                "INSERT INTO TABLE " + tableName + " (");
+                "INSERT INTO " + tableName + " (");
         for (String name : columnNames) {
             query.append(name).append(",");
         }
@@ -25,8 +27,6 @@ public class SqlQueryBuilder {
         query.deleteCharAt(query.length() - 1).append(";");
         return query.toString();
     }
-
-    private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     public boolean isNumeric(String strNum) {
         if (strNum == null) {

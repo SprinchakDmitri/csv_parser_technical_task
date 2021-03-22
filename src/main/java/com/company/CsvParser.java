@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.company.Main.pathToTheFile;
@@ -33,7 +34,7 @@ public class CsvParser {
         } else throw new IllegalArgumentException();
     }
 
-    boolean validateCsvLine(String line, int columnNumber) {                    //todo implement functionality
+    boolean validateCsvLine(String line, int columnNumber) {
         return true;
     }
 
