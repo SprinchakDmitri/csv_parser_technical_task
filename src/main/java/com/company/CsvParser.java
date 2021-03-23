@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -17,6 +18,7 @@ public class CsvParser {
     int failedRecords = 0;
     int successRecords = 0;
     int allRecords = 0;
+    Pattern splitPattern = Pattern.compile(",(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))");
 
     public CsvParser(String pathToTheFile) throws IOException {
         columnNames = getCsvColumnNamesFromFile(pathToTheFile);
@@ -29,22 +31,23 @@ public class CsvParser {
                 .collect(Collectors.toList());
     }
 
-    List<String> getCsvColumnNamesFromFile(String path) throws IOException {    //todo add validation for a first line
+    List<String> getCsvColumnNamesFromFile(String path) throws IOException {
         Optional<String> firstLine = Files.lines(Paths.get(path)).findFirst();
         if (firstLine.isPresent()) {
             return Arrays.asList(firstLine.get().split(","));
         } else throw new IllegalArgumentException();
     }
 
-    boolean validateCsvLine(String line, int columnNumber) {
-        return true;
+    boolean validateCsvLine(String[] line, int columnNumber) {
+        return line.length == columnNumber;
     }
 
-    private List<String> splitCsvLine(String line) {//todo implement split with "," case
+    private List<String> splitCsvLine(String line) {
         allRecords++;
-        if (validateCsvLine(line, columnNames.size())) {
+        String[] splited = splitPattern.split(line);
+        if (validateCsvLine(splited, columnNames.size())) {
             successRecords++;
-            return Arrays.asList(line.split(","));
+            return Arrays.asList(splited);
         } else {
             failedRecords++;
             badData.add(line);
@@ -55,29 +58,17 @@ public class CsvParser {
     List<List<String>> splitAllLines(String path) throws IOException {
         List<String> unsplitedLines = getCsvLinesFromFile(path);
         List<List<String>> resultList = new ArrayList<>();
+        List<String> temp;
+
         for (String line : unsplitedLines) {
-            if (line != null)
-                resultList.add(splitCsvLine(line));
+            temp = splitCsvLine(line);
+            if (temp != null)
+                resultList.add(temp);
         }
         if (badData.size() != 0) {
             FilesUtils.createBadDataFile(badData);
         }
         return resultList;
-    }
-
-    List<String> getLineByIndex(List<List<String>> splitedLines, int lineNumber) {
-        if (splitedLines.size() > lineNumber && lineNumber > 0)
-            return splitedLines.get(lineNumber);
-        else throw new IllegalArgumentException();
-    }
-
-
-    String getElement(List<List<String>> splitedLines, int lineNumber, int elementNumber) {
-        if (splitedLines.size() > lineNumber && lineNumber > 0
-                && elementNumber < columnNames.size() && elementNumber > 0)
-            return splitedLines.get(lineNumber)
-                    .get(elementNumber);
-        else throw new IllegalArgumentException();
     }
 
     public List<String> getColumnNames() {

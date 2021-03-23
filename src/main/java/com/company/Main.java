@@ -75,7 +75,9 @@ public class Main {
             } catch (IOException e) {
                 System.out.println("Problems with reading data from file. Please try once again");
             } catch (SQLException e) {
-                System.out.println("Such table doesn't exist.Please try once again");
+                System.out.println("Such table doesn't exist or columns didn't match. Please try once again");
+            } catch (Exception e) {
+                System.out.println("Unknown error. Please try once again");
             }
         }
         System.out.println("\uD83D\uDC4D  Table is updated");

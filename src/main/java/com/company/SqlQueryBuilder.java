@@ -1,18 +1,17 @@
 package com.company;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class SqlQueryBuilder {
 
-    private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+    private final Pattern numericPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     String createInsertQuery(String tableName, List<String> columnNames, List<List<String>> values) {
         StringBuilder query = new StringBuilder(
                 "INSERT INTO " + tableName + " (");
         for (String name : columnNames) {
-            query.append(name).append(",");
+            query.append(name.trim()).append(",");
         }
         query.deleteCharAt(query.length() - 1).append(")").append(" VALUES ");
 
@@ -20,7 +19,12 @@ public class SqlQueryBuilder {
             query.append("(");
             for (String field : sublist) {
                 if (isNumeric(field)) query.append(field).append(",");
-                else query.append("'").append(field).append("',");
+                else {
+                    if (field.contains("'"))
+                        field = String.join("''", field.split("'"));
+
+                    query.append("'").append(field).append("',");
+                }
             }
             query.deleteCharAt(query.length() - 1).append("),");
         }
@@ -32,6 +36,6 @@ public class SqlQueryBuilder {
         if (strNum == null) {
             return false;
         }
-        return pattern.matcher(strNum).matches();
+        return numericPattern.matcher(strNum).matches();
     }
 }
