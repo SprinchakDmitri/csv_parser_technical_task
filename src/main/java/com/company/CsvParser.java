@@ -24,21 +24,21 @@ public class CsvParser {
         columnNames = getCsvColumnNamesFromFile(pathToTheFile);
     }
 
-    List<String> getCsvLinesFromFile(String path) throws IOException {
+    public List<String> getCsvLinesFromFile(String path) throws IOException {
         return Files
                 .lines(Paths.get(path))
                 .skip(1)
                 .collect(Collectors.toList());
     }
 
-    List<String> getCsvColumnNamesFromFile(String path) throws IOException {
+    public List<String> getCsvColumnNamesFromFile(String path) throws IOException {
         Optional<String> firstLine = Files.lines(Paths.get(path)).findFirst();
         if (firstLine.isPresent()) {
             return Arrays.asList(firstLine.get().split(","));
         } else throw new IllegalArgumentException();
     }
 
-    boolean validateCsvLine(String[] line, int columnNumber) {
+    public boolean validateCsvLine(String[] line, int columnNumber) {
         return line.length == columnNumber;
     }
 
@@ -55,7 +55,7 @@ public class CsvParser {
         }
     }
 
-    List<List<String>> splitAllLines(String path) throws IOException {
+    public List<List<String>> splitAllLines(String path) throws IOException {
         List<String> unsplitedLines = getCsvLinesFromFile(path);
         List<List<String>> resultList = new ArrayList<>();
         List<String> temp;
